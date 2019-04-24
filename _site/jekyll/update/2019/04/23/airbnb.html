@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.5.0 -->
+<title>Airbnb: Boston and Seattle | Bruno VC Martins</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="Airbnb: Boston and Seattle" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="As you can see, this is my blog. So far this is part of the requirements for my Udacity’s Data Scientist nanodegree. Eventually it will get a life of its own…" />
+<meta property="og:description" content="As you can see, this is my blog. So far this is part of the requirements for my Udacity’s Data Scientist nanodegree. Eventually it will get a life of its own…" />
+<link rel="canonical" href="http://localhost:4000/jekyll/update/2019/04/23/airbnb.html" />
+<meta property="og:url" content="http://localhost:4000/jekyll/update/2019/04/23/airbnb.html" />
+<meta property="og:site_name" content="Bruno VC Martins" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-04-23T00:00:00-06:00" />
+<script type="application/ld+json">
+{"description":"As you can see, this is my blog. So far this is part of the requirements for my Udacity’s Data Scientist nanodegree. Eventually it will get a life of its own…","@type":"BlogPosting","url":"http://localhost:4000/jekyll/update/2019/04/23/airbnb.html","headline":"Airbnb: Boston and Seattle","dateModified":"2019-04-23T00:00:00-06:00","datePublished":"2019-04-23T00:00:00-06:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/jekyll/update/2019/04/23/airbnb.html"},"@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css">
+<!-- <link href='https://fonts.googleapis.com/css?family=Arvo:400,400italic,700,700italic' rel='stylesheet' type='text/css'> -->
+<!-- <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">  -->
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Bruno VC Martins" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Bruno VC Martins</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Airbnb: Boston and Seattle</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2019-04-23T00:00:00-06:00" itemprop="datePublished">Apr 23, 2019
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><img src="/assets/images/airbnb_project_files/boston_seattle.png" alt="" class="center-image" /></p>
+
+<!-- <img src="/assets/images/airbnb_project_files/boston_seattle.png" alt="drawing" width="3000"/> -->
+
+<h2 id="introduction">Introduction</h2>
+
+<p>This is my first (last?) blog post which is actually an assignement for the second term of Udacity’s Data Scientist nanodegree. The notebook with the code and all results can be found <a href="https://github.com/bvcmartins/dsndProject4/airbnb_project.ipynb">here</a></p>
+
+<p>In this post we will explore a dataset, kindly provided to us by Airbnb through Kaggle, which covers all activity for one year in Boston and Seattle. The files consist of:</p>
+
+<ul>
+  <li>property listings</li>
+  <li>a calendar for each property</li>
+  <li>guest reviews</li>
+</ul>
+
+<p>Property listings has quite many features and it is by far the most important data resource. It contains all the information you need to know about the properties with details about ratings and some bookkeeping information. Calendar shows day-by-day if each property was occupied or not. It also shows the price when the property was vacant. Most of the analysis we carried out is based on combining information from listings and calendar.</p>
+
+<p>The last file of the dataset has the reviews. This basically contains the text of the review and the who made it and when. I am actually not using this file. Reviews are hard to parse because of the very coloquial writing. Another issue is that a sizable number of them are written in languages other than English. Moreover, by far, the greatest majority of the reviews are good. That’s at least what I found out after doing some prospective tests. It seems that most of the people only write reviews when they like the place. However, that takes away some the explanatory power that they might offer us.</p>
+
+<p>The post must follow the so-called CRISP-DM process. I actually wasn’t really sure if this was really a thing but it looks like it has been around for some time as we can see <a href="https://en.wikipedia.org/wiki/Cross_Industry_Standard_Process_for_Data_Mining">here</a></p>
+
+<p>The CRISP-DM process consists of the following steps:</p>
+
+<ol>
+  <li>Business understanding</li>
+  <li>Data understanding</li>
+  <li>Prepare data</li>
+  <li>Data Modelling</li>
+  <li>Evaluate results</li>
+  <li>Deploy</li>
+</ol>
+
+<p>We will not deploy our solution but we still need to take care of all the previous steps. Let’s start with the Business questions and develop data understanding as we go. The data will also be prepared according to the demands of each question.</p>
+
+<h2 id="business-questions">Business Questions</h2>
+
+<p>The dataset is quite rich and it was easy to come up with a few interesting business questions. Here are the ones that caught my attention:</p>
+
+<ol>
+  <li>How is property occupation along the year? (easy one for warming up)</li>
+  <li>For how long a property is occupied and how much owners earn?</li>
+  <li>Can we determine what are the main predictors for property prices?</li>
+  <li>What are the characteristics of the busiest properties?</li>
+  <li>What are the most popular neighbourhoods? Can we understand why they are popular?</li>
+</ol>
+
+<p>That’s it. Let’s solve these questions.</p>
+
+<h2 id="1-how-occupation-changes-with-time">1. How occupation changes with time?</h2>
+
+<p>The first question that came to my mind was to check how occupation and earnings change as a function of time. That’s a pretty easy one and it can give us some insight about the dataset.</p>
+
+<p>According to the calendar, every day an unit is occupied, the price is shown as NaN. So, to measure occupation, we just need to count the number of NaNs per month. Here is how the counts are distributed over time:</p>
+
+<p><img src="/assets/images/airbnb_project_files/airbnb_project_24_1.png" alt="png" /></p>
+
+<p>For Boston, the occupation is quite steady during spring and summer and lower during winter. However, data is limited to only one year so we can’t be quite sure about this trend. For Seattle, January is popular, probably due to winter birds escaping from the snow further north. We also see some high demand during the peak of summer. The overall occupation in Boston is higher than in Seattle for all months.</p>
+
+<h2 id="2-for-how-long-properties-are-occupied">2. For how long properties are occupied?</h2>
+
+<h3 id="by-the-way-how-much-owners-earn">By the way, how much owners earn?</h3>
+
+<p>Instead of looking at a very aggregated metric like overall occupation per month, let’s check for how long individual units are occupied. To extract this information from Calendar, we only need to count for how long each unit has not been available and plot the histogram.</p>
+
+<p><img src="/assets/images/airbnb_project_files/output_28_0.png" alt="png" /></p>
+
+<p>Wow, we found something interesting here. Property occupation in Boston has a peak around 350 days. Are these properties rented out to students? Let’s check if that is the case.</p>
+
+<p>We create a dataframe containing just the units that were rented out for more than 350 days and check the most common neighbourhoods where these units are located. Interestingly, about 24% of all Boston units are long-term rents.</p>
+
+<div>
+
+<table align="center">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Neighbourhood</th>
+      <th>Number of Properties</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Allston</td>
+      <td>108</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>South End</td>
+      <td>80</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Jamaica Plain</td>
+      <td>79</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Fenway</td>
+      <td>69</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Back Bay</td>
+      <td>66</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Brighton</td>
+      <td>58</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Beacon Hill</td>
+      <td>55</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>North End</td>
+      <td>49</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Mission Hill</td>
+      <td>47</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Downtown</td>
+      <td>45</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>That’s interesting. Allston is quite close to Harvard and more affordable than Cambridge. South End is close to the Boston University School of Medicine. Despite not conclusive, this results lends some evidence to the hypothesis that these year-round rented units are occupied by students.</p>
+
+<p>Coming back to our original question, property occupation in Seattle is what I would consider as typical: most of the properties are rented for just about a month over an year. Contrasting with Boston, just a few properties are in high demand throughout the year. For both cities most of the properties are occupied for less than 50 days an year. That’s the answer to the first part of the question.</p>
+
+<p>However, are these long-term rents a good measure of success? Of course the unit is occupied and making money but that might be by just one tenant for the whole year. It would be interesting to measure how many times the listing was rented to a new tenant.</p>
+
+<p>Let’s create a new column containing the average number of times the unit was rented out. To calculate it we just divide the days the unit was occupied by the average time it was available, which is given by (maximum_nights + minimum_nights) / 2.</p>
+
+<p>To finalize, we calculate earning by multiplying occupation by price. The results are shown below:</p>
+
+<p><img src="/assets/images/airbnb_project_files/output_44_0.png" alt="png" /></p>
+
+<p>That’s very good. Measuring with n_rent instead of occupation eliminated most of the long-term renting effect. That’s important if we want to measure how effective our listing is and how well our property stacks with others in the same category. Here are the conclusions for this question:</p>
+
+<ol>
+  <li>Units are rented for shorter periods in Seattle than in Boston. In Boston, 24% of the units are rented out for more than 350 days an year. We found some evidence that these units are occupied by students.</li>
+  <li>If we consider the number of times the units are rented, most of them are  less than 20 times an year for both cities. In Boston 9 units are rented more than 300 times an year.</li>
+  <li>In Boston most of the units make less than 100k an year while in Seattle most of them make less than 50k an year. Maximum earnings in Boston are around 500k and there is an outlier making more than 1 million (that doesn’t seem right). In Seattle, maximum earnings are around 175k and two outliers around 300k an year.</li>
+</ol>
+
+<h2 id="3-what-are-the-main-predictors-for-property-price">3. What are the main predictors for property price?</h2>
+
+<p>This one might be a common question for property owners:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    What are most important property features that I need to take care of if I want to raise the price?
+</code></pre></div></div>
+
+<p>My idea to solve this question is to train a supervised learning method that returns a feature importance list and then take the five first elements. AdaBoost is a good choice for this problem.</p>
+
+<p>Starting with the merged dataframes created above, we can down the columns that I considered (very subjectively) might be the most important for this question. This step required me to do some research and to ponder a bit about which columns were worthy keeping. Here is my list:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># I arbitrarily chose these columns </span>
+<span class="n">list_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s">'id'</span><span class="p">,</span>
+                <span class="s">'host_since'</span><span class="p">,</span>
+                <span class="s">'host_response_rate'</span><span class="p">,</span>
+                <span class="s">'host_acceptance_rate'</span><span class="p">,</span>
+                <span class="s">'host_is_superhost'</span><span class="p">,</span>
+                <span class="s">'host_listings_count'</span><span class="p">,</span>
+                <span class="s">'neighbourhood_cleansed'</span><span class="p">,</span>
+                <span class="s">'property_type'</span><span class="p">,</span>
+                <span class="s">'room_type'</span><span class="p">,</span>
+                <span class="s">'accommodates'</span><span class="p">,</span>
+                <span class="s">'bathrooms'</span><span class="p">,</span>
+                <span class="s">'bedrooms'</span><span class="p">,</span>
+                <span class="s">'beds'</span><span class="p">,</span>
+                <span class="s">'bed_type'</span><span class="p">,</span>
+                <span class="s">'amenities'</span><span class="p">,</span>
+                <span class="s">'price'</span><span class="p">,</span>
+                <span class="s">'minimum_nights'</span><span class="p">,</span>
+                <span class="s">'maximum_nights'</span><span class="p">,</span>
+                <span class="s">'n_rent'</span><span class="p">,</span>
+                <span class="s">'occupied'</span><span class="p">,</span>
+                <span class="s">'number_of_reviews'</span><span class="p">,</span>
+                <span class="s">'review_scores_rating'</span><span class="p">,</span>
+                <span class="s">'review_scores_accuracy'</span><span class="p">,</span>
+                <span class="s">'review_scores_cleanliness'</span><span class="p">,</span>
+                <span class="s">'review_scores_checkin'</span><span class="p">,</span>
+                <span class="s">'review_scores_communication'</span><span class="p">,</span>
+                <span class="s">'review_scores_location'</span><span class="p">,</span>
+                <span class="s">'review_scores_value'</span><span class="p">,</span>
+                <span class="s">'instant_bookable'</span><span class="p">,</span>
+                <span class="s">'cancellation_policy'</span><span class="p">,</span>
+                <span class="s">'require_guest_profile_picture'</span><span class="p">,</span>
+                <span class="s">'require_guest_phone_verification'</span> <span class="p">]</span>
+</code></pre></div></div>
+
+<p>Some of the columns are obvious choices but, for example, ‘require_guest_profile_picture’ is certainly not a clear one. I chose it because if I am a privacy-oriented guest, I would rather not have my picture available on Airbnb (Maybe not. That’s just a guess. Maybe I would not even use Airbnb…).</p>
+
+<p>After cleaning and preprocessing the a joined dataframe containing Calendar and Listings, it was straightforwatd to train a regressor. However, after much work, I could only get an R2 score of 0.097 for Boston. Not very promising.</p>
+
+<p>My guess was that the dataset is too sparse, too high-dimensional and with too few instances for any regressor to perform well (it is only one year worthy of data). Moreover, if we inspect pairs of variables using scatter plots, we can see that there is no clear trend in the data (and that there are one or two outliers).</p>
+
+<p><img src="/assets/images/airbnb_project_files/airbnb_project_54_0.png" alt="png" /></p>
+
+<p>One solution for this issue is to turn the regression problem into a classification problem. We define four price categories based on the price quartiles and make predictions about these classes.</p>
+
+<p>Using Ada Boost as the classifier and running 5-fold cross-validation cycles we ended up getting an acceptable result:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>boston accuracy: 0.55
+seattle accuracy: 0.57
+</code></pre></div></div>
+
+<p>Here is the feature importance list, which is the answer to our question:</p>
+
+<p><img src="/assets/images/airbnb_project_files/airbnb_project_58_1.png" alt="png" /></p>
+
+<p>So, can we determine what are the main predictors for property price? Yes, of course. Here are the most important predictors for prices in Boston:</p>
+
+<ol>
+  <li>Room is a private room</li>
+  <li>Number of people that can be accommodated in the property</li>
+  <li>Number of amenities</li>
+  <li>If the property is in South End</li>
+  <li>Nummber of bedrooms</li>
+</ol>
+
+<p>For Seattle the result is almost the same:</p>
+
+<ol>
+  <li>How many people the room can accomodate</li>
+  <li>Room is a private room</li>
+  <li>Number of bedrooms</li>
+  <li>How many days unit is occupied during the year</li>
+  <li>Number of reviews</li>
+</ol>
+
+<p>As we can see the trends are the same for both cities. The most valuable properties have private rooms, they can accomodate a family, have more than one bedroom and they are located in central areas. This result makes sense to me.</p>
+
+<h2 id="4-what-makes-a-property-desirable">4. What makes a property desirable?</h2>
+
+<p>Now, we would like to know what are the characteristics of properties that are in high demand (in terms of number or rentings). To solve this question we can use the same trick as above: define a four-star classification based on occupation which is the number of days a unit has been rented out.</p>
+
+<p>The idea here is to use PCA to reduce dimensionality of the dataset and to aggregate original features into new variables, which are more meaningful for this problem. Then, using k-means clustering, we can find out how these features are aggregated in different classes. Last but not the least, we will find to which classes most of the 4-star properties belong. That solves our question.</p>
+
+<p>Fear not! This is not as complicated as it sounds.</p>
+
+<p>Our PCA model has 20 dimensions, which corresponds to about 80% of explained variance. Keep in mind that the original dataframe had 71 dimensions. Having the PCA axes in place, we can run k-means to generate clusters in this new space. We choose 10 cluster as the optimum value.</p>
+
+<p>Now, for the great moment, we checked which clusters have the highest population of properties with the maximum score (4) in terms of how long it is occupied. Let’s take a look at how the 10 clusters are populated considering all properties compared to the percentage for the top score properties:</p>
+
+<p><img src="/assets/images/airbnb_project_files/airbnb_project_84_0.png" alt="png" /></p>
+
+<p>Wow. The analysis worked very well for Boston and maybe just well for Seattle. In Boston cluster 9 is clearly overpopulated by top units while in Seattle clusters 0 and 1 have an excess of top units. Let’s check what are the attributes of these units.</p>
+
+<p><img src="/assets/images/airbnb_project_files/airbnb_project_86_0.png" alt="png" /></p>
+
+<h4 id="for-boston">For Boston</h4>
+<ul>
+  <li>For cluster 9 the most important attributes are 0, 2 (positive) and 1 (negative)
+    <ul>
+      <li>attribute 0 describes units in Jamaica Plain or Dorchester with moderate cancellation policy. Property is a house with private rooms</li>
+      <li>attribute 2 describes units that are occupied for most of the time. Property is also a house with private rooms and several amenities. Cancellation policy is strict.</li>
+      <li>attribute 1 describes units in Black Bay or Fenway. They are heavily occupied and the host has several properties. Cancellation policy is moderate.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="for-seattle">For Seattle</h4>
+<ul>
+  <li>For cluster 0 the most important attributes are 1 (negative) and 2 (positive)
+    <ul>
+      <li>attribute 1: properties in Belltown and Broadway with moderate cancellation policy and long-time hosts</li>
+      <li>attribute 2: Houses with private rooms, many amenities and cancellation policy strict.</li>
+    </ul>
+  </li>
+  <li>For cluster 2 the most important attributes are 0, 1, 3 (positive) and 4 (negative)
+    <ul>
+      <li>attribtue 0: units with cancellation policy strict, that require guest phone and profile verification. Host acceptance rate and response rate are high. (this feature is a bit too broad)</li>
+      <li>attribute 1: Houses that have private rooms</li>
+      <li>attribute 3: Houses that are constantly occupied. They have several bedrooms and can accomodate many people. They have cancellation policy moderate.</li>
+      <li>attribute 4: Houses that are instantly_bookable with long-time hosts. They have high response rate and high acceptance rate</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Yes, we made it. These are the characteristics of the properties that have been in hghest demand in both cities. They share several common features like being a house, with many bedrooms and private rooms. Properties in central locations are also popular.</p>
+
+<p>Probably the most interesting part about this analysis is that it is not completely justified. The combination PCA-clustering can be applied to a problem where only a fraction of the total dataset is labeled. That is know as semi-supervised learning. In our case all instances had a label (4-star rate) so we could have just ran AdaBoost and collected the most important features. On the other hand, PCA-clustering gives much more fine-grained information about different facets of the problem. In our case we detected the importance of some neighbourhoods.</p>
+
+<h2 id="5-what-are-the-most-popular-neighbourhoods">5. What are the most popular neighbourhoods?</h2>
+<h3 id="can-we-understand-why-they-are-popular">Can we understand why they are popular?</h3>
+
+<p>To solve this last question we can use the neighborhood overview from the listings dataframe. The interesting thing about overviews is that they tend to be more well-behaved than the wild west of the reviews. The host will take more time to tailor the language which turns the text easier to be processed. Moreover, from what I have checked, all overviews are in English.</p>
+
+<p>The idea here is to aggregate reviews per neighborhood, turn them into a bag of words and process them using Latent Dirichlet Allocation, a Bayesian tool for analysis of trends in texts.</p>
+
+<p>Because the results of this analysis are quite lenghty I will do it only for Boston.</p>
+
+<p>The first thing we notice in the listings dataframe is that almost 40% of the overviews are missing (come on, how can someone post a property and not write an overview?).</p>
+
+<p>The analysis is quite straightforward. We group the entries by neighborhood, process the text using vectorization and perform the LDA analysis. Finally we sort the neighborhoods by average rent score (higher for properties that are rented more times). Here are the top 5:</p>
+
+<div>
+<table align="center">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>neighbourhood</th>
+      <th>message</th>
+      <th>rent_score</th>
+     </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>16</th>
+      <td>Mission Hill</td>
+      <td>fine arts longwood medical museum fine minute walk mission hill medical area northeastern university</td>
+      <td>2.919355</td>
+     </tr>
+    <tr>
+      <th>0</th>
+      <td>Allston</td>
+      <td>harvard square min walk charles river students young walk away young professionals restaurants bars</td>
+      <td>2.819231</td>
+     </tr>
+    <tr>
+      <th>21</th>
+      <td>South Boston Waterfront</td>
+      <td>walking distance seaport district section city district hottest fort point harpoon brewery lots businesses</td>
+      <td>2.734940</td>
+     </tr>
+    <tr>
+      <th>22</th>
+      <td>South End</td>
+      <td>south end copley square walking distance newbury street end bay minute walk neighborhoods south</td>
+      <td>2.708589</td>
+     </tr>
+    <tr>
+      <th>3</th>
+      <td>Beacon Hill</td>
+      <td>beacon hill charles street charles river state house hill historic antique shops brick sidewalks</td>
+      <td>2.675258</td>
+     </tr>
+    
+  </tbody>
+</table>
+</div>
+
+<p>And here is how we can interpret the results:</p>
+
+<ol>
+  <li>Mission Hill: It’s at walking distance from the fine arts museum, it has the Longwood medical center and it is close to Harvard university</li>
+  <li>Allston - close to Harvard, within minutes walk from Charles river. Many young professionals leave there and it has several restaurants and bars</li>
+  <li>South Boston Waterfront - it is at walking distance from the seaport district. It is one of the hottest districts in the city and it is the location of the Harpoon brewery. There are lots of businesses.</li>
+  <li>South End - Copley square is at walking distance. It is crossed by Newbury street which has many restaurants and retails.</li>
+  <li>Beacon Hill - Close to Charles street and Charles river. It is an historic neighborhood with brick sidewalls and antique shops.</li>
+</ol>
+
+<p>That was interesting. It looks like we managed to get some meaningful information out of this mess.</p>
+
+<h2 id="conclusions">Conclusions</h2>
+
+<p>Using data manipulation and machine learning we managed to generate quite interesting insights from a particularly challenging dataset. Here is what we learned:</p>
+
+<ul>
+  <li>demand is high during spring and summer. For all months Boston is in higher demand than Seattle</li>
+  <li>25% of the properties in Boston are rented all year round. These properties are probably mostly rented to students</li>
+  <li>price was predicted with around 60% accuracy. The most important features for price determination that are common to both cities are:
+    <ul>
+      <li>rooms are private</li>
+      <li>number of people that can be accommodated</li>
+      <li>number of bedrooms</li>
+    </ul>
+  </li>
+  <li>the most sought-after properties can be grouped by common fetures. Some of the most common features were:
+    <ul>
+      <li>rooms are private</li>
+      <li>number of bedrooms</li>
+      <li>cancellation policy is moderate</li>
+      <li>hosts have high reputation</li>
+    </ul>
+  </li>
+  <li>for Boston, the hottest neighbourhoods were Mission Hill, Allston, South Boston waterfron, South End, Beacon Hill. These places were in general close to universities, historic neighbourhoods or street shopping.</li>
+</ul>
+
+<p>We covered a lot of ground but we could have done much more with this dataset. One question that I would like to tackle is if the reviews are consistent with the ratings for each property. It also would be interesting to extend this analysis to a longer timeframe so we could get better accuracy for the price predictions. Maybe some other time.</p>
+
+  </div><a class="u-url" href="/jekyll/update/2019/04/23/airbnb.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+  <!--  <h2 class="footer-heading">Bruno VC Martins</h2> -->
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">
+            </li><li><a class="u-email" href="mailto:bvcm@posteo.org">bvcm@posteo.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/bvcmartins"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">bvcmartins</span></a></li><li><a href="https://www.linkedin.com/in/bvcmartins"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg> <span class="username">bvcmartins</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>As you can see, this is my blog. So far  this is part of the requirements for my  Udacity&#39;s Data Scientist nanodegree. Eventually it will get a life of its own...</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

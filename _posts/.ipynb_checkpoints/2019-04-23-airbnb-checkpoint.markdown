@@ -300,9 +300,9 @@ The analysis is quite straightforward. We group the entries by neighborhood, pro
   <thead>
     <tr style="text-align: center;">
       <th></th>
-      <th>neighbourhood</th>
-      <th>message</th>
-      <th>rent score</th>
+      <th>Neighbourhood</th>
+      <th>Message</th>
+      <th>Rent score</th>
      </tr>
   </thead>
   <tbody>

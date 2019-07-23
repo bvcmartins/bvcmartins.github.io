@@ -52,19 +52,19 @@
 
 <h3 id="introduction"><strong>Introduction</strong></h3>
 
-<p>This post discusses in detail a solution for the project “Create a Customer Segmentation Report for Arvato Financial Services”, which is one of options for the Data Scientist Nanodegree capstone projects. It is in fact a continuation of a previous project whose solution was posted <a href="https://github.com/bvcmartins/dsndProject3">here</a>. I chose it because of its broad scope which involves a reasonably complex data cleaning procedure, unsupervised learning, analysis of imbalanced data, and prediction using supervised learning tools. In the following I will discuss the solution and the difficulties faced in some of the most challenging steps.</p>
+<p>This post discusses in detail a <a href="https://github.com/bvcmartins/dsnd_capstone">solution</a> for the project “Create a Customer Segmentation Report for Arvato Financial Services”, which is one of options for the Data Scientist Nanodegree capstone projects. It is in fact a continuation of a previous project whose solution was posted <a href="https://github.com/bvcmartins/dsndProject3">here</a>. I chose it because of its broad scope which involves a reasonably complex data cleaning procedure, unsupervised learning, analysis of imbalanced data, and prediction using supervised learning tools. Below I will discuss the solution and the difficulties faced in some of the most challenging steps.</p>
 
-<p>The objective of this project is to predict, based on a broad list of features, if someone who is receiving a mailout campaign will become a customer of the company. It is devided in three parts:</p>
+<p>The objective of this project was to predict, based on a broad list of features, if someone who is receiving a mailout campaign would become a customer of the company. It was divided into three parts:</p>
 
 <ol>
-  <li>Segment the data obtained for the general population of Germany in clusters and identify in which of these clusters the current customers fall in</li>
+  <li>Segment the data obtained for the general population of Germany in clusters and identify in which of these clusters the current customers fall into</li>
   <li>Select people from these clusters who are not customers to receive a mailout campaign and train a supervised learning model to predict who will become a new customer</li>
   <li>Apply the model to a Kaggle competition</li>
 </ol>
 
-<p>In part 1 I carried out the data segmentation using PCA for dimensionality reduction and K-Means for clustering. In part 2 I used three tree-based supervised learning techniques (Random Forests, Ada Boost, XGBoost) models for the prediction of new customers.</p>
+<p>In part 1, I carried out the data segmentation using PCA (Principal component analysis) for dimensionality reduction and K-Means for clustering. In part 2, I used three tree-based supervised learning techniques (Random Forests, AdaBoost and XGBoost) models for the prediction of new customers.</p>
 
-<p>The best model was tested against the test set through a Kaggle competition and the scores were ranked using the AUC (Area under curve) metric. This metric was used because of the highly imabalanced distribution of the response variable. However, in the last part of this report, I will show why this metric is not the best choice for this problem and why the F1 metric would be more suited to measure model performance.</p>
+<p>The best model was tested against the test set through a Kaggle competition and the scores were ranked using the AUC (area under curve) metric. This metric was used because of the highly imbalanced distribution of the response variable. However, in the last part of this report, I will show why this metric is not the best choice for this problem and why the F1 metric would be more suited to measure model performance.</p>
 
 <h3 id="the-dataset"><strong>The dataset</strong></h3>
 
@@ -72,16 +72,16 @@
 
 <ul>
   <li>
-    <p>Azdias: sample of the general german population categorized according to a variety of features involving personality traits, demographics and financial information (891221 entries, 366 features).</p>
+    <p>Azdias: sample of the general German population categorized according to a variety of features involving personality traits, demographics and financial information (891,221 entries, 366 features).</p>
   </li>
   <li>
-    <p>Customers: classification of current customers according to the same features used for Azdias (191652 entries, 369 features). It also contains customer categorization and information about purchase preferences.</p>
+    <p>Customers: classification of current customers according to the same features used for Azdias (191,652 entries, 369 features). It also contains customer categorization and information about purchase preferences.</p>
   </li>
   <li>
-    <p>Mailout_train: training set containing potential customers chosen to receive a mailout campaign  (42962 entries, 367 features). It also contains information if the person became a customer (target variable).</p>
+    <p>Mailout_train: training set containing potential customers chosen to receive a mailout campaign (42,962 entries, 367 features). It also contains information if the person became a customer (target variable).</p>
   </li>
   <li>
-    <p>Mailout_test: testing set for the supervised learning model (42833 entries, 366 features).</p>
+    <p>Mailout_test: testing set for the supervised learning model (42,833 entries, 366 features).</p>
   </li>
 </ul>
 
@@ -96,7 +96,7 @@
   </li>
 </ul>
 
-<p>Most of the features are ordinal and the numbers represent a label for ranked value levels. As far as I could identify, all columns marked as float are actually of type int64 mixed with NaN symbols. In fact, NaNs are treated as float64 and, because of its higher precedence, they make the entire column being cast as float. Most recent Pandas versions (higher than 0.24.0) incorporated the new type Int64 which supports integer NaN. Despite being somewhat experimental, I used this new data type as a way to reduce the large amount of ancillary code required to control operations over different dtypes.</p>
+<p>Most of the features are ordinal and the numbers represent a label for ranked value levels. As far as I could identify, all columns marked as float are actually of type int64 mixed with NaN symbols. In fact, NaNs are treated as float64 and, because of its higher precedence, they make the entire column being cast as float. Most recent Pandas versions (higher than 0.24.0) incorporated the new type Int64 which supports integer NaN. Despite being somewhat experimental, I used this new data type as a way to reduce the large amount of ancillary code required to control operations over different data types.</p>
 
 <p>There are also 6 features of type object. These are categorical variables, except for EINGEFUEGT_AM, which is datetime. I dropped this feature because it did not have any explicative power.</p>
 
@@ -120,17 +120,17 @@
 
 <h4 id="pre-cleaning"><strong>Pre-cleaning</strong></h4>
 
-<p>In this first cleaning round I applied general-purpose operations like converting all numeric features to Int64 (support to integer NaN) and made substitutions of some non-standard missing data codes.</p>
+<p>In this first cleaning round, I applied general-purpose operations like converting all numeric features to Int64 (support to integer NaN) and made substitutions of some non-standard missing data codes.</p>
 
 <h4 id="converting-missing-values-to-nan"><strong>Converting missing values to NaN</strong></h4>
 
-<p>The challenge with this step was that the missing data codes were feature-dependent. Most of the missing values were coded as -1 or 0 but some of them were coded (and not listed in file DIAS Attributes) as X or XX. I converted these special codes to NaNs during pre-cleaning.</p>
+<p>The challenge with this step was that the missing data codes were feature-dependent. Most of the missing values were coded as -1 or 0, but some of them were coded (and not listed in file DIAS Attributes) as strings X or XX. I converted these special codes into NaNs during pre-cleaning.</p>
 
-<p>For missing values coded as -1 or 0, I first converted them to a different code (-100) to data type-related problems and then cast them to integer NaN.</p>
+<p>For missing values coded as -1 or 0, I first converted them into a different code (-100) to data type-related problems and then cast them to integer NaN.</p>
 
 <h4 id="assessing-missing-data-per-feature"><strong>Assessing missing data per feature</strong></h4>
 
-<p>After having all missing values converted to NaN I was able to assess which features had more than 445 000 missing. This number is half the total number of entries. As shown below, I found 9 features satisfying this requirement. They corresponded to 18% of all missing values and were all dropped.</p>
+<p>After having all missing values converted into NaN I was able to assess which features had more than 445,000 missing. This number is half the total number of entries. As shown below, I found 9 features satisfying this requirement. They corresponded to 18% of all missing values and were all dropped.</p>
 
 <center>
 <img src="/images/capstone/missing_feature.png" width="400" />
@@ -138,17 +138,17 @@
 
 <h4 id="assessing-missing-data-per-row"><strong>Assessing missing data per row</strong></h4>
 
-<p>In the same way certain columns can have a disproportional amount of missing values, this can also happen to groups of rows. As shown in histogram below, the distribution of missing data per row is multimodal. Most of the rows have less than 50 NaNs but some of them can have at least 180 missing features. I singled out these outliers for further assessment.</p>
+<p>In the same way certain columns can have a disproportional amount of missing values, this can also happen to groups of rows. As shown in histogram below, the distribution of missing data per row is multimodal. Most of the rows have less than 50 NaNs, but some of them can have at least 180 missing features. I singled out these outliers for further assessment.</p>
 
 <center>
 <img src="/images/capstone/missing_row.png" width="800" />
 </center>
 
-<p>To decide if these rows should be dropped or imputed I applied the <a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test">Kolmogorov-Smirnov test</a>. This non-parametric test checks if two groups come from the same distribution. To apply it I selected all features that were numeric and that had no missing values in both groups. Then I compared both groups for all the features. The null hypothesis for each comparison was that both groups were identical.</p>
+<p>To decide if these rows should be dropped or imputed, I applied the <a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test">Kolmogorov-Smirnov test</a>. This non-parametric test checks if two groups come from the same distribution. To apply it, I selected all features that were numeric and that had no missing values in both groups. Then I compared both groups for all the features. The null hypothesis for each comparison was that both groups were identical.</p>
 
 <p>Because the test involved multiple comparisons, I also applied the very strict <a href="https://en.wikipedia.org/wiki/Bonferroni_correction">Bonferroni correction</a> to the p-values.</p>
 
-<p>Results for each feature are shown below. The difference between the two groups was significant only for 8.2% of the test features. Note that this number is not a p-value and it should not be compared with the 0.05 significance level. The test was just a guide and not a proper statistical-based decision making process. In the end I decided that 8.2% was not reason enough to drop the rows.</p>
+<p>Results for each feature are shown below. The difference between the two groups was significant only for 8.2% of the test features. Note that this number is not a p-value and, as such, it should not be compared with the 0.05 significance level. The test was just a guide and not a proper statistical-based decision making process. In the end, I decided that 8.2% was not reason enough to drop the rows.</p>
 
 <center>
 <img src="/images/capstone/ks_test.png" width="800" />
@@ -179,7 +179,7 @@
 
 <h4 id="scaling"><strong>Scaling</strong></h4>
 
-<p>Next I applied scaling all numeric variables (including ordinals). At first I used Standard Scaler but it was too sensitive to outliers. Later I figured out that a combination of the <a href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.RobustScaler.html">Robust Scaler</a> with outlier removal greatly improved prediction results.</p>
+<p>Next I applied scaling all numeric variables (including ordinals). At first I used Standard Scaler, but it was too sensitive to outliers. Later I figured out that a combination of the <a href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.RobustScaler.html">Robust Scaler</a> with outlier removal greatly improved the prediction results.</p>
 
 <h4 id="removing-outliers"><strong>Removing outliers</strong></h4>
 
@@ -191,28 +191,28 @@
   <li>remove all rows with at least one outlier</li>
 </ul>
 
-<p>The threshold distance of 4.0 is actually larger than the standard inter-quartile range (IQR) distance of 3.0. I applied it because IQR was too harsh and eliminated too many rows.</p>
+<p>The threshold distance of 4.0 is actually larger than the standard inter-quartile range (IQR) distance of 3.0. I applied it because IQR was too strict and eliminated too many rows.</p>
 
-<p>I also did some eploratory tests with two native scikit-learn outlier removal methods: Isolation Forest and Local Outlier Factor. They failed to eliminate most of the outliers. Both have quite many tuning parameters because they use machine learning methods to identify the outliers. It is quite possible that I could have gotten a better result if I had properly tuned them.</p>
+<p>I also did some exploratory tests with two native scikit-learn outlier removal methods: Isolation Forest and Local Outlier Factor. They failed to eliminate most of the outliers. Both have tuning parameters because they use machine learning methods to identify the outliers. It is quite possible that I could have gotten a better result if I had properly tuned them.</p>
 
-<h3 id="customer-segmentation-report"><strong>Customer Segmentation Report</strong></h3>
+<h3 id="customer-segmentation-report"><strong>Customer segmentation report</strong></h3>
 
-<p>The objective of the first part of the project was to reduce the dimensionality of the Azdias dataset (sample of general population of Germany) and to categorize the population in clusters. Then apply the same transformations to the Customers dataset and identify the clusters with excess customer population. By following this procedure we can identify which clusters are the most important for new customers identification in the general population.</p>
+<p>The objective of the first part of the project was to reduce the dimensionality of the Azdias dataset (sample of general population of Germany) and to categorize the population in clusters. Then I applied the same transformations to the Customers dataset and identified the clusters with excess customer population. By following this procedure, I identified which clusters were the most important for new customers identification in the general population.</p>
 
 <p>The analysis comprised the following steps:</p>
 
 <ol>
   <li>Reduce dimensionality of the general population dataset using PCA</li>
   <li>Clusterize the reduced space using K-means in order to identify customer segments</li>
-  <li>Apply the PCA transformation defined in 1 to the customers dataset</li>
+  <li>Apply the PCA transformation defined in step 1 to the Customers dataset</li>
   <li>Clusterize the customer reduced space and identify which clusters have a population excess</li>
 </ol>
 
 <h4 id="pca"><strong>PCA</strong></h4>
 
-<p>After being cleaned, one-hot encoded and scaled, the number of features increased to 496. Some of these features were redundant and many of them were not important at all. It is interesting, at this point, to reduce dimensionality so we can work on a leaner dataset that is more ammenable to visualization and to training.</p>
+<p>After being cleaned, one-hot encoded and scaled, the number of features increased to 496. Some of these features were redundant and many of them were not important at all for predictions. It is interesting, at this point, to reduce dimensionality so we could work on a leaner dataset that was more suitable to visualization and to training.</p>
 
-<p><a href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html">PCA</a> is the most basic tool for dimensionality reduction. I applied it to reduce the number of dimensions from the original 496 to 107. This is the minimum number of dimensions needed to explain 80% of the variance. It still quite large but, as we can see in the scree plot below, only about 10 dimensions are actually individually relevant for the explained variance.</p>
+<p><a href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html">PCA</a> is the most basic tool for dimensionality reduction. I applied it to reduce the number of dimensions from the original 496 to 107. This is the minimum number of dimensions needed to explain 80% of the variance. It still quite large but, as we can see in the scree plot below, only about 10 dimensions were actually individually relevant for the explained variance.</p>
 
 <center>
 <img src="/images/capstone/screeplot_pca.png" width="800" />
@@ -228,42 +228,43 @@
 
 <p><img src="/images/capstone/screeplot_kmeans.png" alt="" /></p>
 
-<p>The barplot below shows how all elements of Azdias are distributed among the 12 clusters. We can see that the distribution is approximately balanced, which is a good indication that the method is consistent.</p>
+<p>The barplot below shows how all elements of Azdias were distributed among the 12 clusters. We can see that the distribution was approximately balanced, which is a good indication that the method is consistent.</p>
 
 <center>
-<img src="/images/capstone/general_pop.png" width="500" />
+<img src="/images/capstone/general_pop.png" width="400" />
 </center>
 
-<p>One of the main advantages of using PCA is that it allows us to inspect projections of a high-dimensional dataset. Because the two first components are so strong we can plot all the datapoint on this 2D space and get a good idea of how the data distributed and how the clusters were assignes. That’s exactly what is shown in the plot below.</p>
+<p>One of the main advantages of using PCA is that it allows us to inspect projections of a high-dimensional dataset. Because the two first components are so strong we could plot all the data points on this 2D space in order to get a better idea of how the data distributed and how the clusters were assigned. That is exactly what is shown in the plot below.</p>
 
 <p><img src="/images/capstone/general_clusters.png" alt="" /></p>
 
-<p>Note that the data distribution has a homogeneous oval shape which is not quite separable. There are no evident spatially-separated clusters. If we look at the color map identifying different clusters, it is clear that K-Means performed a somewhat arbitrary cluster separation. Actually this method is probably not the most adequate for this dataset. <a href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html">DBSCAN</a> would be a more adqueate choice but the high computational cost prevented its application since it requires many iterations to adjust its two main parameters.</p>
+<p>Note that the data distribution has a homogeneous oval shape which is not quite separable. There are no evident spatially-separated clusters. If we look at the color map identifying different clusters, it is clear that K-Means performed a somewhat arbitrary cluster separation. Actually this method is probably not the most adequate for this dataset. <a href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html">DBSCAN</a> would be a more adequeate choice; however, the high computational cost prevented its application since it requires many iterations to adjust its two main parameters.</p>
 
-<p>In past iterations of this project I also tried to other dimensionality reduction techniques applied after PCA: T-SNE and UMAP. Some of the results were promising but not-consistent enough to be considered for this project.</p>
+<p>In past iterations of this project, I also tried to other dimensionality reduction techniques applied after PCA: T-SNE and UMAP. Some of the results were promising but not-consistent enough to be considered for this project.</p>
 
 <h3 id="application-to-customers-dataset"><strong>Application to Customers dataset</strong></h3>
 
-<p>The data cleaning and processing steps described above actually constitute a pipeline that can be applied to any dataset having the same features as Azdias.</p>
+<p>The data cleaning and processing steps described above actually defined a pipeline, which can be applied to any dataset having the same features as Azdias.</p>
 
-<p>Customers dataset has the same structure as Azdias with 3 extra columns (PRODUCT_GROUP, CUSTOMER_GROUP, ONLINE_PURCHASE). We drop these because they don’t have any relevant information for the model training.</p>
+<p>Customers dataset had the same structure as Azdias with 3 extra columns (PRODUCT_GROUP, CUSTOMER_GROUP, ONLINE_PURCHASE). We dropped these columns because they did not have any relevant information for the model training.</p>
 
-<p>If we apply the pipeline to the rest of the Customers dataset, we obtain the cluster population distribution shown in the graph below.</p>
+<p>By applying the pipeline to the rest of the Customers dataset, we obtained the cluster population distribution shown in the graph below.</p>
 
-<p><img src="/images/capstone/customer_clusters.png" alt="" /></p>
+<center>
+<img src="/images/capstone/customer_clusters.png" width="400" />
+</center>
 
-<p>That is a very interesting result. The customers dataset, when projected onto the clusters defined using Azdias, shows a population excess in clusters 0 and 10. This results suggests that current customers of the company share some common traits and can be singled out from the general population. If we revert this thought and look back at Azdias, all of its elements falling in clusters 0 or 10 are the ones that should be targeted by the mailout campaign.</p>
+<p>That is a very interesting result. The Customers dataset, when projected onto the clusters defined using Azdias, showed a population excess in clusters 0 and 10. This result suggested that current customers of the company share some common traits and can be singled out from the general population. If we revert this thought and look back at Azdias, all of its elements falling in clusters 0 or 10 are the ones that should be targeted by the mailout campaign.</p>
 
-<p>Another interesting consequence of this results, is that we infer some of the actual customers common traits. Looking at the PCA components weights for clusters 0 and 10 as plotted below, we note that only a few of them are relevant for the description of th cluster.</p>
+<p>Another interesting consequence of this result is that we inferred some of the actual customers common traits. Looking at the PCA components weights for clusters 0 and 10 as plotted below, we note that only a few of them were relevant for the description of the cluster.</p>
 
 <center>
 <img src="/images/capstone/kmeans_comps.png" width="800" />
 </center>
 
-<p>Take cluster 0. Clearly components 0, 2 and 3 are the most important. Each of these components is an axis with a positive and a negative orientation. Both are important. The positive features grow together and inversely to the negative ones.</p>
+<p>Take cluster 0 as an example. Clearly components 0, 2 and 3 were the most important. Each of these components is an axis with a positive and a negative orientation. Both must be considered. The positive and negative features grow together and inversely to each other.</p>
 
-<p>Let’s look at the most important attributes for components 0, 2 and 3.
-Given a component we selected the top positive and negative attributes. These two blocks change together and inversely to one another.</p>
+<p>Let’s look at the strongest attributes for components 0, 2 and 3.</p>
 
 <p><strong>Component 0: top 5 positive attributes</strong></p>
 
@@ -285,7 +286,7 @@ Given a component we selected the top positive and negative attributes. These tw
   <li>PLZ8_ANTG1: number of 1-2 family houses in the PLZ8</li>
 </ol>
 
-<p>For component 0 the pattern is clear. Positive attributes are related to high-density housing and negative attributes are relate to low-density housing, possibly in the suburbs because of the movement pattern feature.</p>
+<p>For component 0 the pattern is clear. Positive attributes were related to high-density housing while negative attributes were related to low-density housing, possibly in the suburbs because of the movement pattern feature.</p>
 
 <p><strong>Component 2: top 5 positive attributes</strong></p>
 
@@ -307,7 +308,7 @@ Given a component we selected the top positive and negative attributes. These tw
   <li>FINANZ_VORSORGER: financial typology: be prepared</li>
 </ol>
 
-<p>For component 2 both positive and negative attributes are probably related to conservative-minded older individuals. Too many attribute descriptions are missing.</p>
+<p>For component 2, both positive and negative attributes were probably related to conservative-minded older individuals. Too many attribute descriptions were missing.</p>
 
 <p><strong>Component 3: top 5 positive attributes</strong></p>
 
@@ -331,60 +332,60 @@ Given a component we selected the top positive and negative attributes. These tw
 
 <p>For component 3 both positive and negative attributes were related to online transactions.</p>
 
-<p>We could go deeper into this analysis using more than just the top 5 feature and maybe parsing the results using Latent Dirichlet Allocation to identify topics associated with each of the clusters. However, this is outside the scope of this work.</p>
+<p>We could have gone deeper into this analysis using more than just the top 5 features and maybe parsing the results using Latent Dirichlet Allocation to identify topics associated with each of the clusters. However, this is outside the scope of this work.</p>
 
 <h3 id="supervised-learning-model"><strong>Supervised Learning Model</strong></h3>
 
-<p>The previous section was aimed at selecting new potential customers that would receive a mailout campaign. These were selected by Arvato which provided us with two extra datasets (mailout_train, mailout_test)containing just these individuals. Both have approximately the same size with around 43000 entries. Mailout train is the training set and it contains the same features as Azdias (366 columns) and and extra RESPONSE column indicating if the person became a customer of the company following the campaign. The other block was used to generate predictions.</p>
+<p>The previous section was aimed at selecting new potential customers that would receive a mailout campaign. These were selected by Arvato which provided us with two extra datasets (mailout_train, mailout_test) containing just these individuals. Both had approximately the same size with around 43,000 entries. Mailout train is the training set and it contains the same features as Azdias (366 columns) and extra RESPONSE column indicating if the person became a customer of the company following the campaign. The other block was used to generate predictions.</p>
 
-<p>As expected for this kind of study, the response classes are very imbalanced. The classes are:</p>
+<p>As expected for this kind of study, the response classes were very imbalanced. The classes were:</p>
 
 <ul>
   <li>0 - did not become customer after campaign</li>
   <li>1 - became customer after campaign</li>
 </ul>
 
-<p>Only 1.2% of the entries are of class 1.</p>
+<p>Only 1.2% of the entries were of class 1.</p>
 
-<p>If we look at the population distribution per cluster for response 0:</p>
+<p>If we compare the population distribution per cluster for response 0 and for response 1:</p>
 
-<p><img src="/images/capstone/mailout_clusters_0.png" alt="" /></p>
+<center>
+<img src="/images/capstone/mailout_clusters_0.png" width="400" />
+</center>
 
-<p>and for response 1:</p>
-
-<p><img src="/images/capstone/mailout_clusters_1.png" alt="" /></p>
+<center>
+<img src="/images/capstone/mailout_clusters_1.png" width="400" />
+</center>
 
 <p>we observe that they are quite similar to each other and to the customers distribution. This means that:</p>
 
 <ol>
-  <li>the cluster number does not convey much information for differentiation between classes 0 and 1</li>
-  <li>the elements that received the mailout campaign were indeed selected from the customers analysis. This is a good indication of the consistency of the method.</li>
+  <li>the cluster number did not convey much information for differentiation between classes 0 and 1</li>
+  <li>the elements that received the mailout campaign were indeed selected from the customers analysis. This was a good indication of the consistency of the method</li>
 </ol>
 
-<p>Another interesting visualization is to plot the data point projected on the first two PCA axes as shown below:</p>
+<p>Another interesting visualization was to plot the data points projected on the first two PCA axes as shown below:</p>
 
 <p><img src="/images/capstone/mailout_response.png" alt="" /></p>
 
-<p>Note how the few points with reponse 1 (became clients) are embedded in the much larger homogeneous volume generated by the elements with reponse 0. Even if we plot only class 1:</p>
+<p>Note how the few points with reponse 1 (became clients) are embedded in the much larger homogeneous volume generated by the elements with response 0. Even if we plot only class 1 we find no relevant spatial seggregation of the minority class.</p>
 
 <p><img src="/images/capstone/mailout_response_1.png" alt="" /></p>
-
-<p>we find no relevant spatial seggregation of the minority class.</p>
 
 <p>It is worthy pointing out that this is a place where T-SNE might be helpful. Some preliminary attempts were not well-succeeded but, in principle, this method could help separating the two classes by correlation.</p>
 
 <h4 id="models"><strong>Models</strong></h4>
 
-<p>Class imblance is a hard problem to deal with. Our first approach to this issue is to use <a href="https://imbalanced-learn.readthedocs.io/en/stable/generated/imblearn.over_sampling.SMOTE.html">SMOTE</a> to balance the training set. However, this is not without risks. Some important points to keep in mind are:</p>
+<p>Class imblance is a hard problem to deal with. Our first approach to this issue was to use <a href="https://imbalanced-learn.readthedocs.io/en/stable/generated/imblearn.over_sampling.SMOTE.html">SMOTE</a> to balance the training set. However, this is not without risks. Some important points to keep in mind are:</p>
 
 <ul>
   <li>SMOTE must only be applied to training set. Predictions on Test set must use the original imbalanced classes</li>
   <li>if inside of a Cross-Validation loop, SMOTE must be calculated for every fold</li>
-  <li>We applied SMOTE only to the PCA-transformed dataset because all features are numeric and real. For categorical variables SMOTENC must be used insted</li>
-  <li>We performed oversampling of the miniority class. We could also have performed undersampling of the majority class</li>
+  <li>we applied SMOTE only to the PCA-transformed dataset because all features are numeric and real. For categorical variables SMOTENC must be used instead</li>
+  <li>we performed oversampling of the minority class. We could also have performed undersampling of the majority class</li>
 </ul>
 
-<p>We first test different models using their default parameters. For each model we run 5-fold CV training and testing with and without SMOTE. The results obtained with the test set are shown below.</p>
+<p>We first tested different models using their default parameters. For each model, we ran 5-fold CV training with and without SMOTE. The results obtained with the Test set (always without SMOTE) are shown below.</p>
 
 <table>
   <thead>
@@ -421,9 +422,9 @@ Given a component we selected the top positive and negative attributes. These tw
   </tbody>
 </table>
 
-<p>That is not very compelling. The best optimized model, obtained after running the a Grid Search routine, was an <a href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostClassifier.html">AdaBoost Classifier</a> with learning_rate=1.0 and n_estimators=300.</p>
+<p>That was not very compelling. The best optimized model, obtained after running the Grid Search routine, was the <a href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostClassifier.html">AdaBoost Classifier</a> with learning_rate=1.0 and n_estimators=300.</p>
 
-<p>Actually, running grid search with SMOTE is not easy. As we can see below, it requires the use of a SMOTE pipeline integrated with the training model. Scoring is roc_auc and we use 3-fold split instead of 5-fold to save processing time.</p>
+<p>Actually, running grid search with SMOTE is not easy. As we can see below, it requires the use of a SMOTE pipeline integrated with the training model. Scoring was AUC and we used 3-fold split instead of 5-fold to save processing time.</p>
 
 <pre><code class="language-`python">
 ab_model = Pipeline([
@@ -462,14 +463,14 @@ grid_ab.fit(X, y)
   </tbody>
 </table>
 
-<p>SMOTE is clearly not the best solution for this problem. After many trial and error attempts using different models, two modifications greatly improved the results:</p>
+<p>SMOTE was clearly not the best solution for this problem. After many trial and error attempts using different models, two modifications greatly improved the results:</p>
 
 <ol>
   <li>Use the scale_pos_weight XGBoost parameter for compensation of class imbalance</li>
   <li>Use the cleaned dataframe instead of the PCA-transformed one</li>
 </ol>
 
-<p>The second modification was surprising. In principle we should expect that PCA contains the essence of the dataset but that was not the case. Probably the cuttoff of 80% explained variance is too low. The fact is that the only we can get beyond 0.7 AUC is to use the full dataset. As we can see below, the results were much better now:</p>
+<p>The second modification was surprising. In principle we should have expected that PCA contained the essence of the dataset but that was not the case. Probably the cuttoff of 80% explained variance was too low. The fact was that the only way we could get beyond AUC=0.7 was to use the full dataset. As we can see below, the results were much better now:</p>
 
 <table>
 <colgroup>
@@ -498,21 +499,21 @@ grid_ab.fit(X, y)
 <ul>
   <li>base_score=0.5</li>
   <li>booster=’dart’</li>
-  <li>colsample_bylevel=1,</li>
+  <li>colsample_bylevel=1</li>
   <li>colsample_bynode=1</li>
   <li>colsample_bytree=0.7</li>
-  <li>gamma=0,</li>
-  <li>learning_rate=0.01,</li>
-  <li>max_delta_step=0,</li>
-  <li>max_depth=6,</li>
+  <li>gamma=0</li>
+  <li>learning_rate=0.01</li>
+  <li>max_delta_step=0</li>
+  <li>max_depth=6</li>
   <li>min_child_weight=1</li>
-  <li>n_estimators=500,</li>
-  <li>nthread=None,</li>
-  <li>objective=’binary:logistic’,</li>
-  <li>random_state=34,</li>
-  <li>reg_alpha=0,</li>
-  <li>reg_lambda=1,</li>
-  <li>sample_pos_weight=80,</li>
+  <li>n_estimators=500</li>
+  <li>nthread=None</li>
+  <li>objective=’binary:logistic’</li>
+  <li>random_state=34</li>
+  <li>reg_alpha=0</li>
+  <li>reg_lambda=1</li>
+  <li>sample_pos_weight=80</li>
   <li>scale_pos_weight=1</li>
 </ul>
 
@@ -525,11 +526,13 @@ grid_ab.fit(X, y)
 
 <p>None of them increased the final score.</p>
 
-<h3 id="prediction-and-kaggle-competition">Prediction and Kaggle competition</h3>
+<h3 id="prediction-and-kaggle-competition"><strong><em>Prediction and Kaggle competition</em></strong></h3>
 
-<p>Finally I used the best model to generate predictions with the Mailout_test and apply them to the Kaggle competition. The score was 0.79917, not bad but somewhat far from the first place. This result seems good in principle but in fact it is very bad. I came to this conclusion after inspecting the confusion matrix obtained for this same model:</p>
+<p>Finally, I used the best model to generate predictions with the Mailout_test and apply them to the Kaggle competition. The score was 0.79917, which is not bad but somewhat far from the first place. This result seemed good in principle but in fact it was very bad. I came to this conclusion after inspecting the confusion matrix obtained for this same model:</p>
 
-<p><img src="/images/capstone/cm_model6.png" alt="" /></p>
+<center>
+<img src="/images/capstone/cm_model6.png" width="400" />
+</center>
 
 <p>This is telling us that all minority values were misclassified. It is basically just the Naive Classifier! And that was sufficient to get a score of almost 0.8! I consider that AUC was not a good metric choice for this problem and that F1 would have been more adequate. In fact, I ran grid search again optimizing the parameters to maximize F1 instead of AUC and I obtained the following results:</p>
 
@@ -555,29 +558,31 @@ grid_ab.fit(X, y)
 </tbody>
 </table>
 
-<p>This model has a much more balanced confusion matrix:</p>
+<p>This model had the following confusion matrix:</p>
 
-<p><img src="/images/capstone/cm_model8.png" alt="" /></p>
+<center>
+<img src="/images/capstone/cm_model8.png" width="400" />
+</center>
 
-<p>The point here is that this model presented a much more balanced confusion matrix which is after all our final goal. This behavior was captured by the F1 score, which increased, and not by the AUC score, which decreased. This was the best F1 model but not the best AUC. In fact, AUC scores resemble the high scores obtained with accuracy. This is the reason why I consider that AUC is not the best metric for this problem.</p>
+<p>The point here is that this model presented a much more balanced confusion matrix which is, after all, our final goal. This behavior was better captured by the F1 score. This was the best F1 model but not the best AUC. In fact, AUC scores resembled the high scores obtained with accuracy. This is the reason why I consider that AUC is not the best metric for this problem.</p>
 
-<h2 id="conclusions-and-next-steps">Conclusions and next steps</h2>
+<h2 id="conclusions-and-next-steps"><strong>Conclusions and next steps</strong></h2>
 
 <p>That was a quite interesting project, I enjoyed very much working on it. Here are the main conclusions I obtained from it:</p>
 
 <ol>
-  <li>the new integer NaN implemented in Pandas helps a lot with the cleaning</li>
+  <li>the new integer NaN implemented in Pandas helped a lot with the cleaning</li>
   <li>outlier removal was very important for result improvement</li>
-  <li>PCA and k-means are good tools for qualitative data analysis, specially if you want to use visualization to generate insights. However, for this dataset, they did not lead to better predictions</li>
-  <li>Using XGBoost with sample weight parameters was a better solution to class imbalance than SMOTE</li>
-  <li>Definitely you can get misled if you use bad metrics</li>
+  <li>PCA and K-means were good tools for qualitative data analysis, specially if you want to use visualization to generate insights. However, for this dataset, they did not lead to better predictions</li>
+  <li>Using XGBoost with sample weight parameters was a better solution than SMOTE</li>
+  <li>Definitely you can get misled results if you use bad metrics</li>
 </ol>
 
 <p>We can still take a few steps to improve this model:</p>
 
 <ol>
-  <li>A more thorough T-SNE parameter search after performing PCA on the Mailout Train set. If T-SNE can spatially separate the classes, the problem would be solved without need for supervised learning.</li>
-  <li>Use DBSCAN instead of K-Means for cluster generation. This would probably not improve the customer segmentation analysis but it could be helpful as an extra feature for supervised learning.</li>
+  <li>A more thorough T-SNE parameter search after performing PCA on the Mailout Train set. If T-SNE can spatially separate the classes, the problem would be solved without need for supervised learning</li>
+  <li>Use DBSCAN instead of K-Means for cluster generation. This would probably not improve the customer segmentation analysis, but it could be helpful as an extra feature for supervised learning</li>
 </ol>
 
   </div><a class="u-url" href="/jekyll/update/2019/07/21/capstone.html" hidden></a>

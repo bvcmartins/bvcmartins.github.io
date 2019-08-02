@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-07-22T21:37:07-06:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Bruno VC Martins</title><subtitle>As you can see, this is my blog. So far  this is part of the requirements for my  Udacity's Data Scientist nanodegree. Eventually it will get a life of its own...</subtitle><entry><title type="html">Create a Customer Segmentation Report for Arvato Financial Services</title><link href="http://localhost:4000/jekyll/update/2019/07/21/capstone.html" rel="alternate" type="text/html" title="Create a Customer Segmentation Report for Arvato Financial Services" /><published>2019-07-21T00:00:00-06:00</published><updated>2019-07-21T00:00:00-06:00</updated><id>http://localhost:4000/jekyll/update/2019/07/21/capstone</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2019/07/21/capstone.html">&lt;h2 id=&quot;capstone-project&quot;&gt;Capstone Project&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-07-31T21:53:15-06:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Bruno VC Martins</title><subtitle>As you can see, this is my blog. So far  this is part of the requirements for my  Udacity's Data Scientist nanodegree. Eventually it will get a life of its own...</subtitle><entry><title type="html">Create a Customer Segmentation Report for Arvato Financial Services</title><link href="http://localhost:4000/jekyll/update/2019/07/21/capstone.html" rel="alternate" type="text/html" title="Create a Customer Segmentation Report for Arvato Financial Services" /><published>2019-07-21T00:00:00-06:00</published><updated>2019-07-21T00:00:00-06:00</updated><id>http://localhost:4000/jekyll/update/2019/07/21/capstone</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2019/07/21/capstone.html">&lt;h2 id=&quot;capstone-project&quot;&gt;Capstone Project&lt;/h2&gt;
 
 &lt;h3 id=&quot;introduction&quot;&gt;&lt;strong&gt;Introduction&lt;/strong&gt;&lt;/h3&gt;
 
@@ -1957,4 +1957,113 @@ Test accuracy = 0.786
 
 &lt;p&gt;&lt;strong&gt;Conclusion:&lt;/strong&gt; Training of VGG16 with the new classifier was well-succeded. Testing accuracy was 78.6% and it could predict the species of the test images used for sanity checking.&lt;/p&gt;
 
-&lt;p&gt;Interestingly, the classifier trained with Resnet50, which is a deeper network, gave worse results than VGG16.&lt;/p&gt;</content><author><name></name></author><summary type="html">Developing an AI application</summary></entry></feed>
+&lt;p&gt;Interestingly, the classifier trained with Resnet50, which is a deeper network, gave worse results than VGG16.&lt;/p&gt;</content><author><name></name></author><summary type="html">Developing an AI application</summary></entry><entry><title type="html">Image Classifier</title><link href="http://localhost:4000/jekyll/update/2019/01/11/Image-Classifier.html" rel="alternate" type="text/html" title="Image Classifier" /><published>2019-01-11T00:00:00-07:00</published><updated>2019-01-11T00:00:00-07:00</updated><id>http://localhost:4000/jekyll/update/2019/01/11/Image-Classifier</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2019/01/11/Image-Classifier.html">&lt;h2 id=&quot;project-2-of-udacity-data-scientist-nanodegree&quot;&gt;Project 2 of Udacity Data Scientist Nanodegree&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/bvcmartins/dsndProject2/blob/master/aipnd_main.ipynb&quot;&gt;Link to Notebook&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;overview&quot;&gt;Overview&lt;/h3&gt;
+
+&lt;p&gt;In this project we trained an image classifier to 
+recognize species of flowers from the 102 Category Flower
+Dataset (&lt;a href=&quot;http://www.robots.ox.ac.uk/~vgg/data/flowers/102/index.html&quot;&gt;dataset&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The objectives of this project were:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Prepare a real image dataset for processing&lt;/li&gt;
+  &lt;li&gt;Train a Convolutional Neural Network (CNN) model and 
+export the network parameters&lt;/li&gt;
+  &lt;li&gt;Develop a standalone application that can make a
+top-k prediction of flower species from pictures using 
+the pre-trained network&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;While this notebook contains both training and testing 
+procedures, standalone python codes were written to 
+achieve the same result.&lt;/p&gt;
+
+&lt;h2 id=&quot;methods&quot;&gt;Methods&lt;/h2&gt;
+
+&lt;p&gt;We used PyTorch as the main library to build the model.
+Two pre-trained CNNs, downloaded from torchvision 
+models, were used: VGG-16 and ResNet-50.&lt;/p&gt;
+
+&lt;p&gt;The CNNs were appended with a two-hidden-layer 
+fully-connected network for classification.&lt;/p&gt;
+
+&lt;p&gt;Parameters for the classification network:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;He initialization&lt;/li&gt;
+  &lt;li&gt;Adam optimizer (learn rate 0.003)&lt;/li&gt;
+  &lt;li&gt;Dropout regularization (probability 0.2)&lt;/li&gt;
+  &lt;li&gt;ReLU activation&lt;/li&gt;
+  &lt;li&gt;Negative Log-Likelihood loss&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;conclusions&quot;&gt;Conclusions&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;VGG-16 performed better than Resnet-50, despite being
+a simpler model 
+for the accuracy&lt;/li&gt;
+  &lt;li&gt;The choice of pre-trained model CNN was the most important
+factor for prediction accuracy&lt;/li&gt;
+  &lt;li&gt;The test images that had not been correctly predicted 
+still had the correct species in the top 5 list&lt;/li&gt;
+&lt;/ul&gt;</content><author><name></name></author><summary type="html">Project 2 of Udacity Data Scientist Nanodegree</summary></entry><entry><title type="html">Finding Donors</title><link href="http://localhost:4000/jekyll/update/2018/12/18/Finding-Donors.html" rel="alternate" type="text/html" title="Finding Donors" /><published>2018-12-18T00:00:00-07:00</published><updated>2018-12-18T00:00:00-07:00</updated><id>http://localhost:4000/jekyll/update/2018/12/18/Finding-Donors</id><content type="html" xml:base="http://localhost:4000/jekyll/update/2018/12/18/Finding-Donors.html">&lt;h2 id=&quot;project-1-for-udacitys-data-scientist-nanodegree&quot;&gt;Project 1 for Udacity’s Data Scientist Nanodegree&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/bvcmartins/dsndProject1/blob/master/finding_donors.ipynb&quot;&gt;Link to Notebook&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;overview&quot;&gt;Overview&lt;/h3&gt;
+
+&lt;p&gt;Income determination from publicly available data 
+is a powerful tool 
+for customer base identification. In this project we 
+employed several supervised learning algorithms to infer 
+individual income using the 1994 census data sample 
+contained in the Adults dataset 
+&lt;a href=&quot;https://archive.ics.uci.edu/ml/datasets/Census+Income&quot;&gt;UCI Machine Learning Repository&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;The objectives of this project were:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Build a model capable of predicting whether an 
+individual makes more or less than $50,000 annually&lt;/li&gt;
+  &lt;li&gt;Clean and preprocess the dataset and analyze it using 
+a number of supervised learning models to choose 
+which one led to higher prediction scores&lt;/li&gt;
+  &lt;li&gt;Optimize the hyperparameters of the model&lt;/li&gt;
+  &lt;li&gt;Perform feature importance analysis to determine 
+which features are the most relevant for income 
+prediction.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The notebook contains many more features than required
+by Udacity’s project. The original file submitted and
+aproved by Udacity
+is in notebook finding_donors_udacity.ipynb.&lt;/p&gt;
+
+&lt;h3 id=&quot;methods&quot;&gt;Methods&lt;/h3&gt;
+
+&lt;p&gt;We used supervised learning methods from Scikit-learn
+for the analysis. AdaBoost was the best performing model.
+The optimization phase used the following techinques:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Random Search&lt;/li&gt;
+  &lt;li&gt;Grid Search&lt;/li&gt;
+  &lt;li&gt;Model calibration&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;conclusions&quot;&gt;Conclusions&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;AdaBoost was the best model. We achieved F1 = 0.78
+with testing set&lt;/li&gt;
+  &lt;li&gt;Logistic regression also performed well with a fraction
+of training time. It performed well with smaller training
+sets&lt;/li&gt;
+  &lt;li&gt;We determined that age, hours-per-week, education years,
+capital-loss and capital-gain were the most important
+features for income determination&lt;/li&gt;
+&lt;/ul&gt;</content><author><name></name></author><summary type="html">Project 1 for Udacity’s Data Scientist Nanodegree</summary></entry></feed>

@@ -1,7 +1,7 @@
 ---
 layout: post
 title "DSND project 3: Identify Customer Segments"
-date: 2019-06-16
+date: 2019-02-25
 categories: jekyll update
 ---
 

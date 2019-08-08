@@ -16,10 +16,7 @@
 title: Bruno VC Martins 
 email: bvcm@posteo.org
 description: >- # this means to ignore newlines until "baseurl:"
-  As you can see, this is my blog. So far 
-  this is part of the requirements for my 
-  Udacity's Data Scientist nanodegree. Eventually
-  it will get a life of its own...
+  This is my Data Science portfolio and blog.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "bvcmartins.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 linkedin_username: bvcmartins 

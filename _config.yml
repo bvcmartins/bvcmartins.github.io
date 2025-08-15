@@ -24,10 +24,20 @@ github_username: bvcmartins
 
 # Build settings
 markdown: kramdown
+highlighter: rouge
 theme: minima
 #theme: jekyll-theme-minimal
 plugins:
   - jekyll-feed
+
+# Kramdown settings
+kramdown:
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: 'highlight'
+
+# Show excerpts on homepage
+show_excerpts: true
 
 #repository: bvcmartins/bvcmartins.github.io
 # Exclude from processing.

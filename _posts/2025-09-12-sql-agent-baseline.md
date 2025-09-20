@@ -12,7 +12,54 @@ As large language models become increasingly sophisticated, one of their most pr
 
 A SQL agent represents a sophisticated bridge between human language and database systems. At its core, it transforms natural language questions into precise SQL queries, but the magic lies in how it accomplishes this transformation. The agent must first understand what you're really asking, then explore the database structure to find the relevant tables and relationships, construct syntactically correct queries that capture your intent, and finally translate the raw results back into meaningful answers.
 
-The agent I've built demonstrates these capabilities using the Chinook sample database, a rich dataset representing a digital music store complete with artists, albums, tracks, customers, and sales transactions. This choice provides an excellent testing ground because it mirrors real-world business scenarios where users might ask everything from simple counts to complex analytical questions about customer behavior and sales trends. This implementation was largely inspired by an example from Langchain: https://python.langchain.com/docs/tutorials/sql_qa/
+The agent presented in this post demonstrates these capabilities using the Chinook sample database, a rich dataset representing a digital music store complete with artists, albums, tracks, customers, and sales transactions. This choice provides an excellent testing ground because it mirrors real-world business scenarios where users might ask everything from simple counts to complex analytical questions about customer behavior and sales trends. This implementation was largely inspired by an example from Langchain: https://python.langchain.com/docs/tutorials/sql_qa/
+
+## Core Implementation Analysis
+
+### Model Configuration and Safety
+
+The agent uses a local Ollama model with specific safety and performance considerations:
+
+```python
+# Deterministic SQL generation for consistency
+llm = ChatOllama(model="qwen3:32b", temperature=0, verbose=True)
+
+# Comprehensive safety guidelines in the prompt
+prompt_template = ChatPromptTemplate.from_template(
+    "You are an agent designed to interact with a SQL database. "
+    # Safety constraints to prevent destructive operations
+    "DO NOT make any DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the database. "
+    # Performance optimization
+    "Do not LIMIT your queries if you are doing aggregation. "
+    "LIMIT the query if it is going to return more than 10000 rows."
+)
+```
+
+Safety takes precedence through explicit constraints built directly into the prompt template. Rather than relying on the model's training to avoid destructive operations, the system explicitly prohibits any data modification commands, creating multiple layers of protection against accidental damage. The performance guidelines embedded in the prompt help the agent make smart optimization decisions, like knowing when to use LIMIT clauses and how to structure aggregation queries for maximum efficiency.
+
+### Database Engine Setup
+
+The implementation uses an in-memory SQLite approach with the Chinook sample database:
+
+```python
+def get_engine_for_chinook_db():
+    """Download and set up Chinook database in memory for fast queries."""
+    url = "https://raw.githubusercontent.com/lerocha/chinook-database/master/ChinookDatabase/DataSources/Chinook_Sqlite.sql"
+    response = requests.get(url)
+    connection = sqlite3.connect(":memory:", check_same_thread=False)
+    connection.executescript(response.text)
+
+    return create_engine(
+        "sqlite://",
+        creator=lambda: connection,
+        poolclass=StaticPool,
+        connect_args={"check_same_thread": False}
+    )
+```
+
+By keeping everything in memory, the agent can execute even complex queries with minimal latency, eliminating the I/O bottlenecks that typically slow down database operations. 
+
+Perhaps most valuable for development and demonstration purposes is the reproducibility factor. Every time the agent starts up, it works with exactly the same dataset, making it easy to test improvements and compare results across different versions. The self-contained nature eliminates the setup friction that often prevents people from experimenting with database agents – no need to install PostgreSQL, configure MySQL, or worry about connection strings and permissions.
 
 ## Architecture Overview
 
@@ -77,56 +124,64 @@ workflow.add_edge("tools", "agent")
 workflow.add_edge("respond", END)
 ```
 
-What makes this architecture particularly elegant is how it enables dynamic, context-aware decision making throughout the query process. The `should_continue` function acts as the agent's internal router, constantly evaluating whether more database exploration is needed or if enough information has been gathered to provide a final answer. This creates a natural feedback loop where tool execution informs further reasoning, allowing the agent to adapt its approach based on what it discovers.
+What makes this architecture particularly appealing is how it enables dynamic, context-aware decision making throughout the query process. The `should_continue` function acts as the agent's internal router, constantly evaluating whether more database exploration is needed or if enough information has been gathered to provide a final answer. This creates a feedback loop where tool execution informs further reasoning, allowing the agent to adapt its approach based on what it discovers.
 
-The system also incorporates safeguards against runaway processes through deterministic termination conditions. Rather than risking infinite exploration cycles, the agent recognizes when it has sufficient information to answer the question or when it has reached reasonable limits on conversation length, ensuring reliable operation even with complex, multi-faceted queries.
+The system also incorporates safeguards against runaway processes through deterministic termination conditions. Rather than risking infinite exploration cycles, the agent recognizes when it has sufficient information to answer the question or when it has reached reasonable limits on conversation length, ensuring reliable operation even with complex queries.
 
-## Core Implementation Analysis
+## Agent Decision Logic Deep Dive
 
-### Model Configuration and Safety
+### Control Flow Analysis
 
-The agent uses carefully configured models with specific safety and performance considerations:
-
-```python
-# Deterministic SQL generation for consistency
-llm = ChatOllama(model="qwen3:32b", temperature=0, verbose=True)
-
-# Comprehensive safety guidelines in the prompt
-prompt_template = ChatPromptTemplate.from_template(
-    "You are an agent designed to interact with a SQL database. "
-    # Safety constraints to prevent destructive operations
-    "DO NOT make any DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the database. "
-    # Performance optimization
-    "Do not LIMIT your queries if you are doing aggregation. "
-    "LIMIT the query if it is going to return more than 10000 rows."
-)
-```
-
-Safety takes precedence through explicit constraints built directly into the prompt template. Rather than relying on the model's training to avoid destructive operations, the system explicitly prohibits any data modification commands, creating multiple layers of protection against accidental damage. The performance guidelines embedded in the prompt help the agent make smart optimization decisions, like knowing when to use LIMIT clauses and how to structure aggregation queries for maximum efficiency.
-
-### Database Engine Setup
-
-The implementation uses an in-memory SQLite approach with the Chinook sample database:
+The agent's decision-making process is governed by the `should_continue` function, which implements a simple control logic:
 
 ```python
-def get_engine_for_chinook_db():
-    """Download and set up Chinook database in memory for fast queries."""
-    url = "https://raw.githubusercontent.com/lerocha/chinook-database/master/ChinookDatabase/DataSources/Chinook_Sqlite.sql"
-    response = requests.get(url)
-    connection = sqlite3.connect(":memory:", check_same_thread=False)
-    connection.executescript(response.text)
+def should_continue(state: AgentState):
+    """Determine workflow progression based on agent state."""
+    messages = state["messages"]
+    last_message = messages[-1]
 
-    return create_engine(
-        "sqlite://",
-        creator=lambda: connection,
-        poolclass=StaticPool,
-        connect_args={"check_same_thread": False}
-    )
+    # Check termination conditions
+    if not last_message.tool_calls or len(messages) > 60:
+        return "respond"  # Move to final response generation
+    else:
+        return "continue"  # Continue with tool execution
 ```
 
-This implementation choice delivers significant practical advantages that become apparent during development and testing. By keeping everything in memory, the agent can execute even complex queries with minimal latency, eliminating the I/O bottlenecks that typically slow down database operations. The careful attention to thread safety through proper connection pooling means multiple users can interact with the agent simultaneously without conflicts or race conditions.
+**Decision Criteria Analysis**:
+- **Tool Call Detection**: Checks if the model requested database tools
+- **Conversation Length Limits**: Prevents infinite loops with 60-message cap
+- **Binary Routing**: Simple but effective continue/respond decision
 
-Perhaps most valuable for development and demonstration purposes is the reproducibility factor. Every time the agent starts up, it works with exactly the same dataset, making it easy to test improvements and compare results across different versions. The self-contained nature eliminates the setup friction that often prevents people from experimenting with database agents – no need to install PostgreSQL, configure MySQL, or worry about connection strings and permissions.
+### Model Chain Architecture
+
+The implementation uses two distinct model chains for different phases:
+
+```python
+# Phase 1: SQL Generation with Tool Access
+generator_model = llm.bind_tools(tools)
+model_with_tools = generator_prompt | generator_model
+
+# Phase 2: Structured Response Generation
+model_with_structured_output = prompt | llm.with_structured_output(QueryResponse)
+```
+
+By separating query generation from response formatting, the system can optimize each phase independently. The generator model focuses entirely on understanding questions and crafting appropriate SQL, while the response model specializes in translating database results into clear, natural language answers.
+
+The tool binding approach ensures that only the generator model has direct database access, creating a clean security boundary. Meanwhile, the structured output capability guarantees that no matter how complex the query or varied the results, the final response always follows a predictable format consumed by downstream applications.
+
+## Technical Implementation Notes
+
+The full implementation uses:
+- **Qwen3:32b** as the language model (temperature=0 for consistency)
+- **SQLite Chinook database** for realistic testing scenarios
+- **LangGraph** for workflow orchestration and state management
+- **Structured output** with Pydantic models for response consistency
+
+Key safety features include:
+- **No DML statements** (INSERT, UPDATE, DELETE, DROP prevention)
+- **Query validation** before execution
+- **Result limiting** to prevent overwhelming outputs
+- **Schema exploration** to understand data before querying
 
 ## Demonstrating Multi-Step Reasoning
 
@@ -180,55 +235,14 @@ Now comes the interesting part. I posed this complex business intelligence quest
 
 This question requires the agent to:
 1. **Identify seasonal patterns** - extract temporal data from invoices
-2. **Classify media types** - distinguish digital vs physical products  
+2. **Classify media types** - distinguish digital vs physical products
 3. **Segment by markets** - analyze geographical differences
 4. **Perform comparative analysis** - contrast trends across segments
 5. **Synthesize insights** - combine multiple analytical dimensions
 
-## Agent Decision Logic Deep Dive
-
-### Control Flow Analysis
-
-The agent's decision-making process is governed by the `should_continue` function, which implements a simple control logic:
-
-```python
-def should_continue(state: AgentState):
-    """Determine workflow progression based on agent state."""
-    messages = state["messages"]
-    last_message = messages[-1]
-
-    # Check termination conditions
-    if not last_message.tool_calls or len(messages) > 60:
-        return "respond"  # Move to final response generation
-    else:
-        return "continue"  # Continue with tool execution
-```
-
-**Decision Criteria Analysis**:
-- **Tool Call Detection**: Checks if the model requested database tools
-- **Conversation Length Limits**: Prevents infinite loops with 60-message cap
-- **Binary Routing**: Simple but effective continue/respond decision
-
-### Model Chain Architecture
-
-The implementation uses two distinct model chains for different phases:
-
-```python
-# Phase 1: SQL Generation with Tool Access
-generator_model = llm.bind_tools(tools)
-model_with_tools = generator_prompt | generator_model
-
-# Phase 2: Structured Response Generation
-model_with_structured_output = prompt | llm.with_structured_output(QueryResponse)
-```
-
-This dual-model architecture represents a conventional approach to managing different types of AI tasks within a single agent. By separating query generation from response formatting, the system can optimize each phase independently. The generator model focuses entirely on understanding questions and crafting appropriate SQL, while the response model specializes in translating database results into clear, natural language answers.
-
-The tool binding approach ensures that only the generator model has direct database access, creating a clean security boundary. Meanwhile, the structured output capability guarantees that no matter how complex the query or varied the results, the final response always follows a predictable format that downstream applications can reliably parse and process.
-
 ## Where the Baseline Agent Struggles
 
-Here's where our current implementation hits its limitations, revealed through code analysis and complex query testing:
+Here's where our current implementation hits its limitations, revealed through history trace:
 
 ### 1. **Linear Tool Execution Pattern**
 
@@ -271,20 +285,6 @@ class QueryResponse(BaseModel):
 The current response structure, while clean and predictable, constrains the agent's ability to provide rich analytical insights. By limiting responses to a single string field, the system cannot effectively communicate multi-dimensional findings or provide the kind of structured analysis that business users often need.
 
 Moreover, the absence of confidence scoring means users have no way to gauge how reliable the agent's answers might be. A query that returns results from a comprehensive dataset receives the same confident presentation as one based on limited or potentially questionable data. This lack of transparency about reasoning and methodology makes it difficult for users to understand how the agent arrived at its conclusions or to assess whether they should trust the results for important business decisions.
-
-## Technical Implementation Notes
-
-The full implementation uses:
-- **Qwen3:32b** as the language model (temperature=0 for consistency)
-- **SQLite Chinook database** for realistic testing scenarios
-- **LangGraph** for workflow orchestration and state management
-- **Structured output** with Pydantic models for response consistency
-
-Key safety features include:
-- **No DML statements** (INSERT, UPDATE, DELETE, DROP prevention)
-- **Query validation** before execution
-- **Result limiting** to prevent overwhelming outputs
-- **Schema exploration** to understand data before querying
 
 ## Conclusion
 
